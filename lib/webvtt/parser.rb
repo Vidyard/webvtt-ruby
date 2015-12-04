@@ -4,7 +4,7 @@ module WebVTT
     File.new(file)
   end
 
-  def self.convert_from_srt_content(srt, output)
+  def self.convert_from_srt_content(srt, output=nil)
     if srt.empty?
       raise InputError, "SRT content is empty"
     end
@@ -15,9 +15,13 @@ module WebVTT
     srt.gsub!("\r\n", "\n")
 
     srt = "WEBVTT\n\n#{srt}".strip
-    ::File.open(output, "w") {|f| f.write(srt)}
 
-    return File.new(output)
+    if output.nil?
+      return File.new(srt, true)
+    else
+      ::File.open(output, "w") {|f| f.write(srt)}
+      return File.new(output)
+    end
   end
 
   def self.convert_from_srt(srt_file, output=nil)
@@ -35,14 +39,20 @@ module WebVTT
     attr_reader :header, :path, :filename
     attr_accessor :cues
 
-    def initialize(webvtt_file)
-      if !::File.exists?(webvtt_file)
-        raise InputError, "WebVTT file not found"
+    def initialize(webvtt_file, parse_content=false)
+      if parse_content
+        @content = webvtt_file
+      else
+        if !::File.exists?(webvtt_file)
+          raise InputError, "WebVTT file not found"
+        end
+
+        @path = webvtt_file
+        @filename = ::File.basename(@path)
+        @content = ::File.read(webvtt_file)
       end
 
-      @path = webvtt_file
-      @filename = ::File.basename(@path)
-      @content = ::File.read(webvtt_file).gsub("\r\n", "\n") # normalizing new line character
+      @content = @content.gsub("\r\n", "\n") # normalizing new line character
       parse
     end
 
