@@ -82,6 +82,7 @@ module WebVTT
       @content.gsub!("\uFEFF", '')
 
       cues = @content.split("\n\n")
+      cues = cues.select { |cue| !cue.empty? }
       @header = cues.shift
       header_lines = @header.split("\n").map(&:strip)
       if (header_lines[0] =~ /^WEBVTT/).nil?

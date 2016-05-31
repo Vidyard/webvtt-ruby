@@ -132,6 +132,15 @@ The text should change)
     assert_equal nil, webvtt.filename
   end
 
+  def test_convert_srt_content_extra_newlines_to_webvtt_no_file
+    content = ::File.read("tests/subtitles/test_from_srt_extra_lines.srt")
+    webvtt = WebVTT.convert_from_srt_content(content)
+    assert_instance_of WebVTT::File, webvtt
+    assert_equal 2, webvtt.cues.size
+    assert_equal nil, webvtt.path
+    assert_equal nil, webvtt.filename
+  end
+
   def test_convert_srt_content_to_webvtt_with_file
     file_name = "tests/subtitles/test_from_srt.srt"
     content = ::File.read(file_name)
